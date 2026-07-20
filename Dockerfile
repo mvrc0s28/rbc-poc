@@ -1,9 +1,17 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | bash
+
+ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
-COPY pyproject.roml uv.lock ./
+
+COPY pyproject.toml uv.lock ./ 
 RUN uv sync --frozen --no-cache
 
 COPY . .
